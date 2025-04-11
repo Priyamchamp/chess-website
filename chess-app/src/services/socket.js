@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { Chess } from 'chess.js';
 
 // Create socket connection to backend server
-const socket = io('http://localhost:5000', {
+const socket = io('http://localhost:3002', {
         autoConnect: true,
         reconnection: true,
         reconnectionAttempts: 5,

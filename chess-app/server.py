@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from chess_engine import Engine
@@ -43,7 +43,10 @@ try:
 except Exception as e:
     print(f"Error checking Stockfish: {e}")
 
-app = Flask(__name__)
+# Path to the React build folder
+STATIC_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dist')
+
+app = Flask(__name__, static_folder=STATIC_FOLDER)
 CORS(app)  # Enable CORS for all routes
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key')
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -51,6 +54,15 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 @app.route('/health')
 def health_check():
     return jsonify({'status': 'ok'}), 200
+
+# Serve React App - Add routes to serve the static files
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
 # Store ongoing games and game states
 games = {}
