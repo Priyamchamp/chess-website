@@ -1,0 +1,26 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read/write access to all users for all paths
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Allow authenticated users to read/write to matchmaking queue
+    match /matchmaking_queue/{document} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Allow authenticated users to read/write to matches
+    match /matches/{document} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Allow authenticated users to read/write to users collection
+    match /users/{userId} {
+      allow read;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+} 
